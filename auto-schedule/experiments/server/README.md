@@ -1,25 +1,25 @@
-## What is this program for?
-This is a server application for experiments about response time.
+## Chương trình này dùng để làm gì?
+Đây là một ứng dụng server cho các thí nghiệm về thời gian phản hồi.
 
-When this application runs, it will occupy the input values of Storage and Memory. When it receives an API request, it will send a request to every of its dependent applications and wait for the responses, and after that do its own workload, and finally send response.
+Khi ứng dụng này chạy, nó sẽ chiếm các giá trị input của Storage và Memory. Khi nhận được yêu cầu API, nó sẽ gửi yêu cầu đến tất cả các ứng dụng phụ thuộc và đợi phản hồi, sau đó thực hiện workload của chính nó, và cuối cùng gửi phản hồi.
 
-## How to use this program?
-### How to build this application?
-1. In this directory, run `go build -o experiment-app`, and then a file named `experiment-app` will be generated. Which is the executable binary file of this application.
-2. Run `docker build -t mcexp:latest .`, and then the container image with "RepoTag" `mcexp:latest` will be generated.
+## Cách sử dụng chương trình?
+### Cách build ứng dụng này?
+1. Trong thư mục này, chạy `go build -o experiment-app`, sau đó file `experiment-app` sẽ được tạo ra. Đây là file binary thực thi của ứng dụng.
+2. Chạy `docker build -t mcexp:latest .`, sau đó container image với "RepoTag" `mcexp:latest` sẽ được tạo.
 
-### How to run this application?
+### Cách chạy ứng dụng này?
 
-The parameters are described before the `main()` function in `main.go`.
+Các tham số được mô tả trước hàm `main()` trong `main.go`.
 
-An example to call multi-cloud manager to run this containerized application is:
+Ví dụ gọi multi-cloud manager để chạy ứng dụng containerized này:
 ```shell
 curl -i -X POST -H Content-Type:application/json -d '{"name":"exp-app2","replicas":1,"hostNetwork":false,"nodeName":"testmem","containers":[{"name":"exp-app2","image":"172.27.15.31:5000/mcexp:latest","workDir":"","resources":{"limits":{"memory":"5000Mi","cpu":"2","storage":"10Gi"},"requests":{"memory":"5000Mi","cpu":"0.5","storage":"10Gi"}},"commands":["./experiment-app"],"args":["5000000","2","5000","10","http://exp-app1-service:81/experiment"],"env":null,"mounts":null,"ports":[{"containerPort":3333,"name":"tcp","protocol":"tcp","servicePort":"81","nodePort":"30002"}]}],"priority":0,"autoScheduled":false}' http://172.27.15.31:20000/doNewApplication
 ```
 
-### How to call this application?
-Send HTTP `GET` request to the port `:3333` and uri `/experiment`.
+### Cách gọi ứng dụng này?
+Gửi yêu cầu HTTP `GET` đến port `:3333` và uri `/experiment`.
 ```shell
 curl -i -X GET http://<IP>:3333/experiment
 ```
-The application will put the **time consumed by the clouds** in the response body, which is from the time when this application receives the request to the time when it sends the response. The unit is `millisecond (ms)`.
+Ứng dụng sẽ đặt **thời gian tiêu thụ bởi clouds** trong response body, từ thời điểm ứng dụng nhận được yêu cầu đến khi gửi phản hồi. Đơn vị là `millisecond (ms)`.

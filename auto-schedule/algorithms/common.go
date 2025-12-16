@@ -27,6 +27,7 @@ const (
 	AmagaName    string = "Amaga"
 	AmpgaName    string = "Ampga"
 	DiktyogaName string = "Diktyoga"
+	MTDPName     string = "MTDP" // Minimizing Total Data Center Power - based on ISLPED 2009 paper
 )
 
 var (

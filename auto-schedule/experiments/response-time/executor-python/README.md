@@ -1,39 +1,102 @@
-## What is this program for?
-This is a tool to call the experiment applications, record the response time related data, and draw charts with that data. 
+## Chương trình này dùng để làm gì?
+Đây là công cụ để gọi các ứng dụng thí nghiệm, ghi lại dữ liệu liên quan đến thời gian phản hồi, và vẽ biểu đồ với dữ liệu đó.
 
-This is the main executor of the experiments.
+Đây là executor chính của các thí nghiệm.
 
-## How to execute the experiments using this program?
-### Step: Decide "repeat count", "device count", "app count", "request count per app"
+## Cách thực thi thí nghiệm sử dụng chương trình này?
 
-After deciding them, we should set the variables `REPEAT_COUNT`, `DEVICE_COUNT`, `APP_COUNT`, `REQ_COUNT_PER_APP` in the file `charts_drawer.py`.
+### Bước 1: Quyết định các tham số
 
-#### repeat count
-We should repeat the experiment multiple times to reduce the impact of random factors.
+Cần quyết định:
+- **repeat count**: Số lần lặp lại thí nghiệm
+- **device count**: Số thiết bị gửi request
+- **app count**: Số lượng ứng dụng
+- **request count per app**: Số lần request mỗi ứng dụng
 
-If we need to repeat the experiment 5 times, we should create 5 folders named `repeat1`, `repeat2`, ..., `repeat5` in the folder `data`.
+Sau khi quyết định, đặt các biến `REPEAT_COUNT`, `DEVICE_COUNT`, `APP_COUNT`, `REQ_COUNT_PER_APP` trong file `charts_drawer.py`.
 
-In each of the `repeatX` folders, we should create:
-- folders with the name of the algorithms that we need to compare in our experiments. 
-- a file named `request_applications.json` used to store the applications deployment request json body. (This is because in each repeat, we should use the same applications to compare different algorithms.)
+#### repeat count (Số lần lặp lại)
+Nên lặp lại thí nghiệm nhiều lần để giảm tác động của các yếu tố ngẫu nhiên.
+
+Nếu cần lặp lại thí nghiệm 5 lần, tạo 5 thư mục có tên `repeat1`, `repeat2`, ..., `repeat5` trong thư mục `data`.
+
+Trong mỗi thư mục `repeatX`, cần tạo:
+- Các thư mục với tên của các thuật toán cần so sánh trong thí nghiệm.
+- File `request_applications.json` để lưu trữ JSON body yêu cầu triển khai ứng dụng. (Vì trong mỗi lần lặp, nên sử dụng cùng các ứng dụng để so sánh các thuật toán khác nhau.)
 
 #### device count, app count, request count per app
-`app count` is the number of applications in the deployment/scheduling request. When we use `auto-schedule/experiments/applications-generator` to generate deployment requests, we should set this value.
+- `app count`: Số lượng ứng dụng trong yêu cầu triển khai/lập lịch. Khi sử dụng `auto-schedule/experiments/applications-generator` để tạo yêu cầu triển khai, cần đặt giá trị này.
 
-`device count` and `request count per app`: In every repeat, we can use multiple devices to request the applications to simulate the real production, and each device can access each app several times to reduce the impact of random factors.
+- `device count` và `request count per app`: Trong mỗi lần lặp, có thể sử dụng nhiều thiết bị để yêu cầu các ứng dụng nhằm mô phỏng môi trường production thực tế, và mỗi thiết bị có thể truy cập mỗi app nhiều lần để giảm tác động của các yếu tố ngẫu nhiên.
 
-### Step: Generate applications deployment request json body
-Use `auto-schedule/experiments/applications-generator` to generate deployment requests. If `repeat count` is 3, we should generate 3 json bodies and put them in `data/repeatX/request_applications.json`.
+### Bước 2: Tạo JSON body yêu cầu triển khai ứng dụng
+Sử dụng `auto-schedule/experiments/applications-generator` để tạo yêu cầu triển khai. 
 
-### Step: Deploy applications
-Send requests to multi-cloud manager to schedule and deploy applications, using the json body in `data/repeatX/request_applications.json`, and use `Mcm-Scheduling-Algorithm` HTTP header to set the name of algorithm.
+Nếu `repeat count` là 3, tạo 3 JSON body và đặt chúng trong `data/repeatX/request_applications.json`.
 
-### Step: Call applications
-After applications are deployed and become running, we run `python3.11 -u caller.py` `request count per app` times to access the applications and generate `request count per app`csv files in the folder `data`. 
+### Bước 3: Triển khai ứng dụng
+Gửi yêu cầu đến multi-cloud manager để lập lịch và triển khai ứng dụng:
+- Sử dụng JSON body trong `data/repeatX/request_applications.json`
+- Sử dụng HTTP header `Mcm-Scheduling-Algorithm` để đặt tên thuật toán
 
-Then we move all the generated `csv` files to the corresponding folders `data/repeatX/{algorithm name}`.
+**Ví dụ:**
+```bash
+curl -i -X POST \
+  -H "Content-Type:application/json" \
+  -H "Mcm-Scheduling-Algorithm:mcssga" \
+  -d @data/repeat1/request_applications.json \
+  http://localhost:20000/doNewAppGroup
+```
 
-### Step: Draw charts
-On a system wich GUI,
-- run `python -u charts_drawer.py` to draw cdf charts.
-- run `python -u charts_drawer_no_cdf.py` to draw dot charts.
+### Bước 4: Gọi ứng dụng
+Sau khi ứng dụng được triển khai và đang chạy:
+
+1. Chạy `python3.11 -u caller.py` `request count per app` lần để truy cập các ứng dụng
+2. Chương trình sẽ tạo `request count per app` file CSV trong thư mục `data`
+3. Di chuyển tất cả các file CSV đã tạo vào thư mục tương ứng `data/repeatX/{algorithm name}`
+
+**Ví dụ:**
+```bash
+# Gọi ứng dụng 10 lần
+for i in {1..10}; do
+  python3.11 -u caller.py
+done
+
+# Di chuyển kết quả
+mv data/*.csv data/repeat1/mcssga/
+```
+
+### Bước 5: Vẽ biểu đồ
+Trên hệ thống có GUI:
+
+**Vẽ biểu đồ CDF:**
+```bash
+python -u charts_drawer.py
+```
+
+**Vẽ biểu đồ điểm:**
+```bash
+python -u charts_drawer_no_cdf.py
+```
+
+## Cấu trúc thư mục
+```
+data/
+├── repeat1/
+│   ├── mcssga/           # Kết quả thuật toán MCSSGA
+│   │   ├── result_1.csv
+│   │   ├── result_2.csv
+│   │   └── ...
+│   ├── amaga/            # Kết quả thuật toán AMAGA
+│   ├── ampga/            # Kết quả thuật toán AMPGA
+│   └── request_applications.json
+├── repeat2/
+│   └── ...
+└── repeat3/
+    └── ...
+```
+
+## Lưu ý
+- Đảm bảo các ứng dụng đã được triển khai và đang chạy trước khi gọi
+- Kiểm tra kết nối mạng đến các ứng dụng
+- File CSV chứa thông tin: thời gian phản hồi, nhiệt độ, performance loss, power overhead

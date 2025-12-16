@@ -1,29 +1,43 @@
-## What is this program for?
-This is a simple program to generate a group of applications in json type, which can be used to request multi-cloud manager's auto-scheduling function to schedule and deploy them.
+## Chương trình này dùng để làm gì?
+Đây là chương trình đơn giản để tạo một nhóm ứng dụng ở dạng JSON, có thể được sử dụng để yêu cầu chức năng auto-scheduling của multi-cloud manager lập lịch và triển khai chúng.
 
-## How to use this program?
-### How to generate a group of application in json type?
-1. Configure the parameters for the function `TestMakeExperimentApps`, including the endpoint of Multi-Cloud Manager. 
-2. At the root directory of this project, run:
+## Cách sử dụng chương trình?
+
+### Cách tạo một nhóm ứng dụng ở dạng JSON?
+
+#### Bước 1: Cấu hình tham số
+Cấu hình các tham số cho hàm `TestMakeExperimentApps`, bao gồm endpoint của Multi-Cloud Manager.
+
+#### Bước 2: Chạy lệnh test
+Tại thư mục gốc của dự án, chạy:
+
+**Cách 1 - Tạo ứng dụng thí nghiệm thông thường:**
+```bash
+go test <Thư mục Gốc Dự án>/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeExperimentApps
 ```
-go test <Project Root Directory>/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeExperimentApps
+
+**Cách 2 - Tạo ứng dụng thí nghiệm nhanh:**
+```bash
+go test <Thư mục Gốc Dự án>/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeFastExperimentApps
 ```
-or
-```
-go test <Project Root Directory>/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeFastExperimentApps
-```
-For example, if the `<Project Root Directory>` is `/mnt/c/mine/code/gocode/src/emcontroller`, we should execute:
-```
+
+**Ví dụ cụ thể:**
+Nếu `<Thư mục Gốc Dự án>` là `/mnt/c/mine/code/gocode/src/emcontroller`, thực thi:
+```bash
 go test /mnt/c/mine/code/gocode/src/emcontroller/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeExperimentApps
 ```
-or
-```
+hoặc
+```bash
 go test /mnt/c/mine/code/gocode/src/emcontroller/auto-schedule/experiments/applications-generator/ -v -count=1 -run TestMakeFastExperimentApps
 ```
 
-### How to send a request to multi-cloud manager to deploy these applications?
+### Cách gửi yêu cầu đến multi-cloud manager để triển khai các ứng dụng?
 
-Copy the output json of the above `go test` command, and put them in the body of an HTTP `POST` request with the header `Content-Type:application/json` to the `/doNewAppGroup` API of multi-cloud manager.
+#### Bước 1: Sao chép output JSON
+Sao chép output JSON của lệnh `go test` ở trên.
+
+#### Bước 2: Gửi HTTP POST request
+Đặt JSON vào body của HTTP `POST` request với header `Content-Type:application/json` đến API `/doNewAppGroup` của multi-cloud manager.
 
 An example:
 ```shell

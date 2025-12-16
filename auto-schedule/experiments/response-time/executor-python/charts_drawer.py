@@ -28,11 +28,20 @@ ATTR_TO_METRIC: dict[str, str] = {
     "Priority-weighted response time (ms)",
     "pri_wei_resp_time_in_clouds":
     "Priority-weighted response time in clouds (ms)",
+    "temperature":
+    "Temperature (°C)",
+    "performance_loss":
+    "Performance loss (fraction)",
+    "power_overhead":
+    "Power overhead (%)",
 }
 
 NON_PRI_ATTR_TO_METRIC: dict[str, str] = {
     "resp_time": "Response time (ms)",
     "resp_time_in_clouds": "Response time in clouds (ms)",
+    "temperature": "Temperature (°C)",
+    "performance_loss": "Performance loss (fraction)",
+    "power_overhead": "Power overhead (%)",
 }
 
 
@@ -47,7 +56,10 @@ def calc_values_for_rejected(
                                          resp_time=0,
                                          resp_time_in_clouds=0,
                                          pri_wei_resp_time=0,
-                                         pri_wei_resp_time_in_clouds=0)
+                                         pri_wei_resp_time_in_clouds=0,
+                                         temperature=20.0,
+                                         performance_loss=0.0,
+                                         power_overhead=0.0)
 
     # set the values in data_for_rej as the largest value of every metric among all algorithms
     for algo_name, algo_data in existing_data.items():
@@ -299,7 +311,10 @@ def main():
                                               resp_time=-1,
                                               resp_time_in_clouds=-1,
                                               pri_wei_resp_time=-1,
-                                              pri_wei_resp_time_in_clouds=-1))
+                                              pri_wei_resp_time_in_clouds=-1,
+                                              temperature=20.0,
+                                              performance_loss=0.0,
+                                              power_overhead=0.0))
 
         # to draw the chart for this repeat
         print("draw cdf charts for repeat {}".format(i + 1))

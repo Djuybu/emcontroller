@@ -1,34 +1,92 @@
-## What is this program for?
-Automatic experiments of response time.
+## Chương trình này dùng để làm gì?
+Thí nghiệm tự động về thời gian phản hồi.
 
-## How to execute the experiments using this program?
-### Step: Decide "repeat count", "device count", "app count", "request count per app", "multi-cloud manager endpoint", "expt-app name prefix", "auto-scheduling VM name prefix" and maybe others.
+## Cách thực thi thí nghiệm sử dụng chương trình này?
 
-Currently, if we want the experiments automatic, `device count` should be `1`. 
+### Bước 1: Quyết định các tham số thí nghiệm
 
-After deciding them, we should set them in the related files including `init.go`, `auto_deploy_call.sh`, `caller.py`, `deleter.py`, `charts_drawer.py`, `http_api.py`, and `auto-schedule/experiments/applications-generator/generator_test.go`.
+Cần quyết định các tham số sau:
+- **repeat count**: Số lần lặp lại thí nghiệm
+- **device count**: Số thiết bị gửi request (hiện tại nên để `1` để tự động)
+- **app count**: Số lượng ứng dụng trong mỗi lần triển khai
+- **request count per app**: Số lần request mỗi ứng dụng
+- **multi-cloud manager endpoint**: Địa chỉ của Multi-cloud Manager
+- **expt-app name prefix**: Tiền tố tên ứng dụng thí nghiệm
+- **auto-scheduling VM name prefix**: Tiền tố tên VM cho auto-scheduling
 
-#### repeat count
-We should repeat the experiment multiple times to reduce the impact of random factors.
+Sau khi quyết định, cần cấu hình chúng trong các file liên quan:
+- `init.go`
+- `auto_deploy_call.sh`
+- `caller.py`
+- `deleter.py`
+- `charts_drawer.py`
+- `http_api.py`
+- `auto-schedule/experiments/applications-generator/generator_test.go`
 
-#### device count, app count, request count per app
-`app count` is the number of applications in the deployment/scheduling request. When we use `auto-schedule/experiments/applications-generator` to generate deployment requests, we should set this value.
+#### Giải thích các tham số:
 
-`device count` and `request count per app`: In every repeat, we can use multiple devices to request the applications to simulate the real production, and each device can access each app several times to reduce the impact of random factors.
+**repeat count (Số lần lặp lại):**
+Nên lặp lại thí nghiệm nhiều lần để giảm tác động của các yếu tố ngẫu nhiên.
 
-### Step: Clear old data
-- move all `executor-python/data/repeatX` into the folder `executor-python/data/bak`.
-- Delete all `executor-python/data/repeatX`.
+**device count, app count, request count per app:**
+- `app count`: Số lượng ứng dụng trong yêu cầu triển khai/lập lịch. Khi sử dụng `auto-schedule/experiments/applications-generator` để tạo yêu cầu triển khai, cần đặt giá trị này.
+- `device count` và `request count per app`: Trong mỗi lần lặp, có thể sử dụng nhiều thiết bị để yêu cầu các ứng dụng nhằm mô phỏng môi trường production thực tế, và mỗi thiết bị có thể truy cập mỗi app nhiều lần để giảm tác động của các yếu tố ngẫu nhiên.
 
-### Step: Generate applications deployment request json body and the needed folders
-At this folder, run `go run init.go`.
+### Bước 2: Xóa dữ liệu cũ
+- Di chuyển tất cả `executor-python/data/repeatX` vào thư mục `executor-python/data/bak`.
+- Xóa tất cả `executor-python/data/repeatX`.
 
-### Step: Deploy applications and call applications for the repeats set by us
-At the folder `executor-python`, run `bash auto_deploy_call.sh`.
+### Bước 3: Tạo yêu cầu triển khai và các thư mục cần thiết
+Tại thư mục này, chạy:
+```bash
+go run init.go
+```
+Lệnh này sẽ tạo:
+- File JSON chứa yêu cầu triển khai ứng dụng
+- Các thư mục cần thiết cho việc lưu trữ kết quả
 
-This step can be executed on a VM in the background `nohup bash auto_deploy_call.sh 2>&1 &`
+### Bước 4: Triển khai và gọi ứng dụng
+Tại thư mục `executor-python`, chạy:
+```bash
+bash auto_deploy_call.sh
+```
 
-### Step: Draw charts
-On a system wich GUI, at the folder `executor-python`,
-- run `python -u charts_drawer.py` to draw cdf charts.
-- run `python -u charts_drawer_no_cdf.py` to draw dot charts.
+Script này sẽ:
+- Triển khai các ứng dụng lên Multi-cloud Manager
+- Tự động gọi các ứng dụng sau khi triển khai thành công
+- Ghi lại thời gian phản hồi
+
+**Chạy ở chế độ nền trên VM:**
+```bash
+nohup bash auto_deploy_call.sh 2>&1 &
+```
+
+### Bước 5: Vẽ biểu đồ
+Trên hệ thống có GUI, tại thư mục `executor-python`:
+
+**Vẽ biểu đồ CDF (Cumulative Distribution Function):**
+```bash
+python -u charts_drawer.py
+```
+
+**Vẽ biểu đồ điểm (Dot charts):**
+```bash
+python -u charts_drawer_no_cdf.py
+```
+
+## Cấu trúc thư mục dữ liệu
+```
+executor-python/data/
+├── repeat1/
+│   ├── {algorithm_name}/
+│   │   └── *.csv (dữ liệu thời gian phản hồi)
+│   └── request_applications.json
+├── repeat2/
+│   └── ...
+└── bak/ (lưu trữ dữ liệu cũ)
+```
+
+## Lưu ý
+- Đảm bảo Multi-cloud Manager đang chạy và có thể truy cập được
+- Kiểm tra đủ tài nguyên cluster trước khi triển khai
+- Thí nghiệm có thể mất nhiều thời gian tùy thuộc vào số lượng ứng dụng và số lần lặp

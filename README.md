@@ -1,40 +1,40 @@
 # Multi-Cloud Manager #
 
-## Basic information
+## Thông tin cơ bản
 
-This project is developed and tested with `Go version go1.20.2 linux/amd64`.
+Dự án này được phát triển và kiểm thử với `Go version go1.20.2 linux/amd64`.
 
-The project is developed using the Beego framework, with APIs defined in the `routers` and `controllers`, core functionality outlined in the `models` directory, and front-end code located within the `views` and `static` directories. Users are required to configure parameters in the `conf` directory."
+Dự án được phát triển sử dụng framework Beego, với các API được định nghĩa trong `routers` và `controllers`, chức năng cốt lõi được mô tả trong thư mục `models`, và mã front-end nằm trong thư mục `views` và `static`. Người dùng cần cấu hình các tham số trong thư mục `conf`.
 
-### How to build Multi-cloud Manager and clean the built files? ###
+### Cách build Multi-cloud Manager và xóa các file đã build? ###
 
-* `make` or `make emcontroller` will generate the binary `emcontroller`.
-* `make clean` will remove the binary `emcontroller`.
+* `make` hoặc `make emcontroller` sẽ tạo file binary `emcontroller`.
+* `make clean` sẽ xóa file binary `emcontroller`.
 
-### How do I run and stop Multi-Cloud Manager? ###
+### Cách chạy và dừng Multi-Cloud Manager? ###
 
-* After building the binary `emcontroller`, in the root path of this project, execute `./emcontroller`.
-* `Ctrl + C` to stop.
+* Sau khi build file binary `emcontroller`, tại đường dẫn gốc của dự án, thực thi `./emcontroller`.
+* `Ctrl + C` để dừng.
 
-### How do I set Multi-cloud Manager as a service of systemd and delete the service? ###
+### Cách đặt Multi-cloud Manager làm service của systemd và xóa service? ###
 
-* After building the binary `emcontroller`, in the root path of this project, execute `bash install_service.sh`.
-* Execute `bash uninstall_service.sh` to delete the service.
+* Sau khi build file binary `emcontroller`, tại đường dẫn gốc của dự án, thực thi `bash install_service.sh`.
+* Thực thi `bash uninstall_service.sh` để xóa service.
 
 
-## Automatic scheduling
-Multi-cloud Manager enables the scheduling of applications, as detailed in the paper "_Multi-cloud Containerized Service Scheduling Optimizing Computation and Communication_". This functionality requires information on the Network Round-Trip Time (RTT) between pairs of clouds. To facilitate this, users are required to upload the "network performance test container image" to the container image repository. Multi-cloud Manager employs a periodic task for collecting RTT data.
+## Lập lịch tự động
+Multi-cloud Manager cho phép lập lịch các ứng dụng, như được mô tả chi tiết trong bài báo "_Multi-cloud Containerized Service Scheduling Optimizing Computation and Communication_". Chức năng này yêu cầu thông tin về Thời gian Round-Trip của Mạng (RTT) giữa các cặp cloud. Để hỗ trợ điều này, người dùng cần upload "container image kiểm tra hiệu năng mạng" vào kho lưu trữ container image. Multi-cloud Manager sử dụng tác vụ định kỳ để thu thập dữ liệu RTT.
 
-### How do I make network performance test container image? ###
-1. Put the folder `net-perf-container-image` to a VM with Docker installed.
-2. On that VM, `cd` into the folder `net-perf-container-image`, and execute `docker build -t mcnettest:latest .`.
+### Cách tạo container image kiểm tra hiệu năng mạng? ###
+1. Đặt thư mục `net-perf-container-image` vào một VM đã cài đặt Docker.
+2. Trên VM đó, `cd` vào thư mục `net-perf-container-image`, và thực thi `docker build -t mcnettest:latest .`.
 
-The code for automatic scheduling can be found in the `auto-schedule` folder. In particular, the scheduling algorithms used in the "Evaluation section" of the paper are implemented in the following files within the `auto-schedule/algorithms` folder: `mcssga.go`, `for_cmp_amaga.go`, `for_cmp_ampga.go`, `for_cmp_best_effort_rand.go`, and `for_cmp_diktyo_ga.go`.
+Mã nguồn cho lập lịch tự động có thể tìm thấy trong thư mục `auto-schedule`. Cụ thể, các thuật toán lập lịch được sử dụng trong phần "Evaluation" của bài báo được triển khai trong các file sau trong thư mục `auto-schedule/algorithms`: `mcssga.go`, `for_cmp_amaga.go`, `for_cmp_ampga.go`, `for_cmp_best_effort_rand.go`, và `for_cmp_diktyo_ga.go`.
 
-For the "Dummy Service" discussed in the paper, you can find its code located in the `auto-schedule/experiments/server` folder. Furthermore, the services parameters (e.g., requirements and others) employed in the paper's experiments are generated using the code available in the `auto-schedule/experiments/applications-generator` directory. To access the specific code for two experiments, please navigate to the `auto-schedule/experiments/usable-accept-rate` and `auto-schedule/experiments/response-time` folders. You'll find detailed information provided in the `README.md` file within each respective folder.
+Đối với "Dummy Service" được thảo luận trong bài báo, bạn có thể tìm mã nguồn của nó trong thư mục `auto-schedule/experiments/server`. Hơn nữa, các tham số dịch vụ (ví dụ: yêu cầu và các tham số khác) được sử dụng trong các thí nghiệm của bài báo được tạo bằng mã nguồn có sẵn trong thư mục `auto-schedule/experiments/applications-generator`. Để truy cập mã nguồn cụ thể cho hai thí nghiệm, vui lòng điều hướng đến các thư mục `auto-schedule/experiments/usable-accept-rate` và `auto-schedule/experiments/response-time`. Bạn sẽ tìm thấy thông tin chi tiết trong file `README.md` trong mỗi thư mục tương ứng.
 
-## Data of the experiments in paper "_Multi-cloud Containerized Service Scheduling Optimizing Computation and Communication_"
-- The data of experiments about Scheduling Time, Usable Solution Rate,and Service Acceptance Rate are the `.csv` files in the folder `auto-schedule/experiments/usable-accept-rate`.
-- The data and service groups of experiments about Response Time are in the folder `auto-schedule/experiments/response-time/executor-python/data`.
-  - The service groups are `request_applications.json` files.
-  - The data are `.csv` files.
+## Dữ liệu của các thí nghiệm trong bài báo "_Multi-cloud Containerized Service Scheduling Optimizing Computation and Communication_"
+- Dữ liệu của các thí nghiệm về Thời gian Lập lịch, Tỷ lệ Giải pháp Khả dụng, và Tỷ lệ Chấp nhận Dịch vụ là các file `.csv` trong thư mục `auto-schedule/experiments/usable-accept-rate`.
+- Dữ liệu và nhóm dịch vụ của các thí nghiệm về Thời gian Phản hồi nằm trong thư mục `auto-schedule/experiments/response-time/executor-python/data`.
+  - Các nhóm dịch vụ là các file `request_applications.json`.
+  - Dữ liệu là các file `.csv`.

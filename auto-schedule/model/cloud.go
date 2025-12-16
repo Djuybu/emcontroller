@@ -10,14 +10,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"emcontroller/models"
+	"emcontroller/weather"
 )
 
 type Cloud struct {
-	Name      string                         `json:"name"`
-	Type      string                         `json:"type"`
-	Resources models.ResourceStatus          `json:"resources"` // used and all resources of this cloud. Here we start with struct defined in "models" package, and in the future if we find that this cannot meet the needs here, we can define new structs.
-	NetState  map[string]models.NetworkState `json:"netState"`  // the network state from this cloud to every cloud
-	K8sNodes  []K8sNode                      `json:"k8sNodes"`  // all existing Kubernetes nodes whose VMs are on this cloud
+	Name         string                         `json:"name"`
+	Type         string                         `json:"type"`
+	Resources    models.ResourceStatus          `json:"resources"` // used and all resources of this cloud. Here we start with struct defined in "models" package, and in the future if we find that this cannot meet the needs here, we can define new structs.
+	NetState     map[string]models.NetworkState `json:"netState"`  // the network state from this cloud to every cloud
+	K8sNodes     []K8sNode                      `json:"k8sNodes"`  // all existing Kubernetes nodes whose VMs are on this cloud
+	TemperatureC float64                        `json:"temp_c"`
 }
 
 // the set of all cloud types that support creating new VMs when auto-scheduling
@@ -145,6 +147,37 @@ func GenerateClouds(inputClouds map[string]models.Iaas) (map[string]Cloud, error
 	return outputClouds, nil
 }
 
+// getCloudLocation returns latitude and longitude for a cloud name
+// Default locations for common cloud names, can be extended or moved to config
+func getCloudLocation(cloudName string) (string, string) {
+	// Default location mapping - can be extended or moved to config file
+	locationMap := map[string]struct {
+		lat string
+		lon string
+	}{
+		"myvm":           {"21.0285", "105.8542"}, // Hà Nội
+		"CLAAUDIAweifan": {"55.6762", "12.5683"},  // Copenhagen, Denmark
+		"HPE1":           {"21.0285", "105.8542"}, // Default to Hà Nội
+		"HPE2":           {"21.0285", "105.8542"},
+		"NOKIA1":         {"21.0285", "105.8542"},
+		"NOKIA2":         {"21.0285", "105.8542"},
+		"NOKIA3":         {"21.0285", "105.8542"},
+		"NOKIA4":         {"21.0285", "105.8542"},
+		"NOKIA5":         {"21.0285", "105.8542"},
+		"NOKIA6":         {"21.0285", "105.8542"},
+		"NOKIA7":         {"21.0285", "105.8542"},
+		"NOKIA8":         {"21.0285", "105.8542"},
+		"NOKIA9":         {"21.0285", "105.8542"},
+		"NOKIA10":        {"21.0285", "105.8542"},
+	}
+
+	if loc, ok := locationMap[cloudName]; ok {
+		return loc.lat, loc.lon
+	}
+	// Default to Hà Nội if cloud name not found
+	return "21.0285", "105.8542"
+}
+
 // generate the Cloud from models.Iaas, the network states of this cloud, and all Kubernetes Nodes
 func GenerateOneCloud(inCloud models.Iaas, cloudNetStates map[string]models.NetworkState, allK8sNodes []apiv1.Node) (Cloud, error) {
 
@@ -162,12 +195,24 @@ func GenerateOneCloud(inCloud models.Iaas, cloudNetStates map[string]models.Netw
 		return Cloud{}, outErr
 	}
 
+	// Fetch temperature for this cloud
+	var temperature float64 = 20.0 // default temperature
+	lat, lon := getCloudLocation(inCloud.ShowName())
+	temp, err := weather.GetCurrentTemperature(lat, lon)
+	if err != nil {
+		beego.Warn(fmt.Sprintf("Failed to fetch temperature for cloud [%s] at [%s,%s], using default 20°C: %v", inCloud.ShowName(), lat, lon, err))
+	} else {
+		temperature = temp
+		beego.Info(fmt.Sprintf("Cloud [%s] temperature: %.1f°C (location: %s,%s)", inCloud.ShowName(), temperature, lat, lon))
+	}
+
 	var outCloud Cloud = Cloud{
-		Name:      inCloud.ShowName(),
-		Type:      inCloud.ShowType(),
-		NetState:  cloudNetStates,
-		Resources: resources,
-		K8sNodes:  k8sNodesOnCloud,
+		Name:         inCloud.ShowName(),
+		Type:         inCloud.ShowType(),
+		NetState:     cloudNetStates,
+		Resources:    resources,
+		K8sNodes:     k8sNodesOnCloud,
+		TemperatureC: temperature,
 	}
 
 	return outCloud, nil
