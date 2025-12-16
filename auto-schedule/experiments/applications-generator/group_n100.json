@@ -1,0 +1,3088 @@
+[
+  {
+    "name": "expt-app-0",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "239098",
+          "2",
+          "1024",
+          "8",
+          "http://expt-app-31-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30000"
+          }
+        ]
+      }
+    ],
+    "priority": 7,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-31"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-1",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          },
+          "requests": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "636554",
+          "4",
+          "15360",
+          "30",
+          "http://expt-app-8-service:81/experiment",
+          "http://expt-app-0-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30001"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-8"
+      },
+      {
+        "appName": "expt-app-0"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-2",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "723469",
+          "4",
+          "2048",
+          "3",
+          "http://expt-app-31-service:81/experiment",
+          "http://expt-app-33-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30002"
+          }
+        ]
+      }
+    ],
+    "priority": 2,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-31"
+      },
+      {
+        "appName": "expt-app-33"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-3",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "94973",
+          "1",
+          "500",
+          "0",
+          "http://expt-app-32-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30003"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-32"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-4",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "822201",
+          "2",
+          "2048",
+          "80"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30004"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-5",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "369923",
+          "8",
+          "8192",
+          "155",
+          "http://expt-app-15-service:81/experiment",
+          "http://expt-app-47-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30005"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-15"
+      },
+      {
+        "appName": "expt-app-47"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-6",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          },
+          "requests": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "567572",
+          "1",
+          "256",
+          "6",
+          "http://expt-app-39-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30006"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-39"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-7",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "590069",
+          "2",
+          "1024",
+          "8",
+          "http://expt-app-8-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30007"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-8"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-8",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "969625",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-19-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30008"
+          }
+        ]
+      }
+    ],
+    "priority": 7,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-19"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-9",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "2",
+            "storage": "128Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "2",
+            "storage": "128Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "868796",
+          "2",
+          "8192",
+          "128",
+          "http://expt-app-46-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30009"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-46"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-10",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          },
+          "requests": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "243296",
+          "1",
+          "256",
+          "6"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30010"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-11",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "635411",
+          "4",
+          "2048",
+          "3",
+          "http://expt-app-50-service:81/experiment",
+          "http://expt-app-58-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30011"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-50"
+      },
+      {
+        "appName": "expt-app-58"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-12",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "4",
+            "storage": "3Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "865914",
+          "4",
+          "2048",
+          "3",
+          "http://expt-app-48-service:81/experiment",
+          "http://expt-app-19-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30012"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-48"
+      },
+      {
+        "appName": "expt-app-19"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-13",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "480571",
+          "2",
+          "1024",
+          "4"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30013"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-14",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "748614",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-30-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30014"
+          }
+        ]
+      }
+    ],
+    "priority": 2,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-30"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-15",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "535559",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-47-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30015"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-47"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-16",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "65193",
+          "8",
+          "8192",
+          "155"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30016"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-17",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          },
+          "requests": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "350436",
+          "4",
+          "16384",
+          "100",
+          "http://expt-app-10-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30017"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-10"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-18",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "769572",
+          "2",
+          "2048",
+          "80",
+          "http://expt-app-14-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30018"
+          }
+        ]
+      }
+    ],
+    "priority": 2,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-14"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-19",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "607183",
+          "2",
+          "2048",
+          "1",
+          "http://expt-app-16-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30019"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-16"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-20",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "781793",
+          "12",
+          "24576",
+          "0",
+          "http://expt-app-13-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30020"
+          }
+        ]
+      }
+    ],
+    "priority": 7,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-13"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-21",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "152414",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-12-service:81/experiment",
+          "http://expt-app-35-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30021"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-12"
+      },
+      {
+        "appName": "expt-app-35"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-22",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          },
+          "requests": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "1063309",
+          "4",
+          "15360",
+          "30",
+          "http://expt-app-18-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30022"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-18"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-23",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "621530",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-20-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30023"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-20"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-24",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "793787",
+          "2",
+          "2048",
+          "1"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30024"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-25",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          },
+          "requests": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "649589",
+          "4",
+          "16384",
+          "100",
+          "http://expt-app-7-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30025"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-7"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-26",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "736168",
+          "1",
+          "500",
+          "0",
+          "http://expt-app-9-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30026"
+          }
+        ]
+      }
+    ],
+    "priority": 2,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-9"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-27",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "770886",
+          "8",
+          "8192",
+          "155",
+          "http://expt-app-47-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30027"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-47"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-28",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "440997",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-15-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30028"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-15"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-29",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "720456",
+          "2",
+          "1024",
+          "4"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30029"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-30",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "210790",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-38-service:81/experiment",
+          "http://expt-app-37-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30030"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-38"
+      },
+      {
+        "appName": "expt-app-37"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-31",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "8",
+            "storage": "155Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "1012584",
+          "8",
+          "8192",
+          "155",
+          "http://expt-app-56-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30031"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-56"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-32",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "581511",
+          "2",
+          "1024",
+          "2"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30032"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-33",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          },
+          "requests": {
+            "memory": "256Mi",
+            "cpu": "1",
+            "storage": "6Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "926770",
+          "1",
+          "256",
+          "6",
+          "http://expt-app-56-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30033"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-56"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-34",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "296243",
+          "2",
+          "2048",
+          "80"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30034"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-35",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "135268",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-31-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30035"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-31"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-36",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "220426",
+          "2",
+          "1024",
+          "8",
+          "http://expt-app-26-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30036"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-26"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-37",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "1134858",
+          "4",
+          "8192",
+          "500"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30037"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-38",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          },
+          "requests": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "843729",
+          "4",
+          "4096",
+          "20",
+          "http://expt-app-3-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30038"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-3"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-39",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          },
+          "requests": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "790013",
+          "4",
+          "15360",
+          "30",
+          "http://expt-app-34-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30039"
+          }
+        ]
+      }
+    ],
+    "priority": 9,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-34"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-40",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "754589",
+          "2",
+          "2048",
+          "1",
+          "http://expt-app-42-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30040"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-42"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-41",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          },
+          "requests": {
+            "memory": "16384Mi",
+            "cpu": "4",
+            "storage": "100Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "1116468",
+          "4",
+          "16384",
+          "100"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30041"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-42",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "542567",
+          "4",
+          "8192",
+          "500",
+          "http://expt-app-53-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30042"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-53"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-43",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "1043106",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-52-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30043"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-52"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-44",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "902117",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-7-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30044"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-7"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-45",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "2Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "564372",
+          "2",
+          "1024",
+          "2",
+          "http://expt-app-0-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30045"
+          }
+        ]
+      }
+    ],
+    "priority": 7,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-0"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-46",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "642781",
+          "2",
+          "2048",
+          "1"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30046"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-47",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "247345",
+          "12",
+          "24576",
+          "0"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30047"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-48",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "80Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "79744",
+          "2",
+          "2048",
+          "80",
+          "http://expt-app-7-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30048"
+          }
+        ]
+      }
+    ],
+    "priority": 4,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-7"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-49",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          },
+          "requests": {
+            "memory": "2048Mi",
+            "cpu": "2",
+            "storage": "1Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "301996",
+          "2",
+          "2048",
+          "1",
+          "http://expt-app-52-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30049"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-52"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-50",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          },
+          "requests": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "156780",
+          "4",
+          "4096",
+          "20",
+          "http://expt-app-49-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30050"
+          }
+        ]
+      }
+    ],
+    "priority": 2,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-49"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-51",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "8Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "739757",
+          "2",
+          "1024",
+          "8",
+          "http://expt-app-39-service:81/experiment",
+          "http://expt-app-3-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30051"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-39"
+      },
+      {
+        "appName": "expt-app-3"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-52",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "24576Mi",
+            "cpu": "12",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "860363",
+          "12",
+          "24576",
+          "0",
+          "http://expt-app-19-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30052"
+          }
+        ]
+      }
+    ],
+    "priority": 7,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-19"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-53",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          },
+          "requests": {
+            "memory": "8192Mi",
+            "cpu": "4",
+            "storage": "500Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "223668",
+          "4",
+          "8192",
+          "500",
+          "http://expt-app-15-service:81/experiment",
+          "http://expt-app-52-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30053"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-15"
+      },
+      {
+        "appName": "expt-app-52"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-54",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          },
+          "requests": {
+            "memory": "500Mi",
+            "cpu": "1",
+            "storage": ""
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "123825",
+          "1",
+          "500",
+          "0",
+          "http://expt-app-31-service:81/experiment",
+          "http://expt-app-33-service:81/experiment",
+          "http://expt-app-56-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30054"
+          }
+        ]
+      }
+    ],
+    "priority": 1,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-31"
+      },
+      {
+        "appName": "expt-app-33"
+      },
+      {
+        "appName": "expt-app-56"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-55",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          },
+          "requests": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "161633",
+          "4",
+          "15360",
+          "30",
+          "http://expt-app-13-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30055"
+          }
+        ]
+      }
+    ],
+    "priority": 5,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-13"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-56",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          },
+          "requests": {
+            "memory": "4096Mi",
+            "cpu": "4",
+            "storage": "20Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "287985",
+          "4",
+          "4096",
+          "20"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30056"
+          }
+        ]
+      }
+    ],
+    "priority": 10,
+    "autoScheduled": true
+  },
+  {
+    "name": "expt-app-57",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "474076",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-59-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30057"
+          }
+        ]
+      }
+    ],
+    "priority": 3,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-59"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-58",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          },
+          "requests": {
+            "memory": "1024Mi",
+            "cpu": "2",
+            "storage": "4Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "233664",
+          "2",
+          "1024",
+          "4",
+          "http://expt-app-35-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30058"
+          }
+        ]
+      }
+    ],
+    "priority": 8,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-35"
+      }
+    ]
+  },
+  {
+    "name": "expt-app-59",
+    "replicas": 1,
+    "hostNetwork": false,
+    "containers": [
+      {
+        "name": "container",
+        "image": "172.27.15.31:5000/mcexp:20230905",
+        "workDir": "",
+        "resources": {
+          "limits": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          },
+          "requests": {
+            "memory": "15360Mi",
+            "cpu": "4",
+            "storage": "30Gi"
+          }
+        },
+        "commands": [
+          "./experiment-app"
+        ],
+        "args": [
+          "132321",
+          "4",
+          "15360",
+          "30",
+          "http://expt-app-6-service:81/experiment"
+        ],
+        "env": null,
+        "mounts": null,
+        "ports": [
+          {
+            "containerPort": 3333,
+            "name": "tcp",
+            "protocol": "tcp",
+            "servicePort": "81",
+            "nodePort": "30059"
+          }
+        ]
+      }
+    ],
+    "priority": 6,
+    "autoScheduled": true,
+    "dependencies": [
+      {
+        "appName": "expt-app-6"
+      }
+    ]
+  }
+]

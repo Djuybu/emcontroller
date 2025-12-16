@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/astaxie/beego"
@@ -9,122 +10,146 @@ import (
 	"github.com/spf13/viper"
 )
 
+// ===== Cloud Type Constants =====
+const LocalIaas = "local"
+
+// ===== Interfaces & Structs =====
 type Iaas interface {
 	ShowName() string
 	ShowType() string
 	ShowWebUrl() string
+
 	GetVM(vmID string) (*IaasVm, error)
 	ListAllVMs() ([]IaasVm, error)
+
+	// Tạo VM theo cơ chế mặc định của cloud driver (ví dụ virt-install với --location/--cdrom, hoặc API cloud)
 	CreateVM(name string, vcpu, ram, storage int) (*IaasVm, error)
+
 	DeleteVM(vmID string) error
 	CheckResources() (ResourceStatus, error)
 	IsCreatedByMcm(vmID string) (bool, error)
 }
 
-type ResourceStatus struct {
-	Limit ResSet `json:"limit"` // total amounts of resources
-	InUse ResSet `json:"inUse"` // the amounts of resources being used
+// importer là interface mở rộng (không bắt buộc) dành cho driver hỗ trợ import từ image có sẵn
+// (vd: Local driver sử dụng virt-install --import/--boot hd)
+type importer interface {
+	CreateVMFromImage(name, imagePath string, vcpu, ram, storage int) (*IaasVm, error)
 }
 
-// Get remaining percentage of the resource with the least remaining percentage, only considering CPU, Memory, and Storage
+type ResourceStatus struct {
+	Limit ResSet `json:"limit"`
+	InUse ResSet `json:"inUse"`
+}
+
 func (rs ResourceStatus) LeastRemainPct() float64 {
 	leastPct := 1.0
-	pctVCpu := (rs.Limit.VCpu - rs.InUse.VCpu) / rs.Limit.VCpu
+
+	// Helper an toàn chia 0
+	safePct := func(limit, inuse float64) float64 {
+		if limit <= 0 {
+			// Nếu không có hạn mức (0 hoặc âm), coi như không hạn chế
+			return 1.0
+		}
+		p := (limit - inuse) / limit
+		if p < 0 {
+			return 0
+		}
+		if p > 1 {
+			return 1
+		}
+		return p
+	}
+
+	pctVCpu := safePct(rs.Limit.VCpu, rs.InUse.VCpu)
 	if pctVCpu < leastPct {
 		leastPct = pctVCpu
 	}
-	pctRam := (rs.Limit.Ram - rs.InUse.Ram) / rs.Limit.Ram
+	pctRam := safePct(rs.Limit.Ram, rs.InUse.Ram)
 	if pctRam < leastPct {
 		leastPct = pctRam
 	}
-	pctStorage := (rs.Limit.Storage - rs.InUse.Storage) / rs.Limit.Storage
+	pctStorage := safePct(rs.Limit.Storage, rs.InUse.Storage)
 	if pctStorage < leastPct {
 		leastPct = pctStorage
 	}
 	return leastPct
 }
 
-// Check whether any resource overflows
 func (rs ResourceStatus) Overflow() bool {
 	return rs.InUse.VCpu > rs.Limit.VCpu ||
 		rs.InUse.Ram > rs.Limit.Ram ||
 		rs.InUse.Storage > rs.Limit.Storage
 }
 
-// The backend APIs (Create VMs and Add K8s Nodes) request uses this struct, so we need to define the json of it.
 type IaasVm struct {
-	ID   string `json:"id"` // the id provided by the cloud
-	Name string `json:"name"`
-
-	// all IPs of this VM.
-	// Although we can show multiple IPs, the VMs created by multi-cloud manager should only have 1 IP.
-	// So when we need to get the IP of a VM, we can directly get its 1st IP.
-	IPs []string `json:"ips"`
-
-	VCpu      float64 `json:"vcpu"`    // number of logical CPU cores
-	Ram       float64 `json:"ram"`     // memory size unit: MiB
-	Storage   float64 `json:"storage"` // storage size unit: GiB
-	Status    string  `json:"status"`
-	Cloud     string  `json:"cloud"` // the name of the cloud that this VM belongs to
-	CloudType string  `json:"cloudType"`
-	McmCreate bool    `json:"mcmCreate"` // whether this VM is created by Multi-cloud manager
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	IPs           []string `json:"ips"`
+	VCpu          float64  `json:"vcpu"`
+	Ram           float64  `json:"ram"`
+	Storage       float64  `json:"storage"`
+	Status        string   `json:"status"`
+	Cloud         string   `json:"cloud"`
+	CloudType     string   `json:"cloudType"`
+	McmCreate     bool     `json:"mcmCreate"`
+	OsVariant     string   `json:"osVariant,omitempty"`
+	InstallMethod string   `json:"installMethod,omitempty"`
 }
 
-// Resource set
 type ResSet struct {
-	VCpu    float64 `json:"vcpu"`    // number of logical CPU cores
-	Ram     float64 `json:"ram"`     // memory size unit: MiB
-	Vm      float64 `json:"vm"`      // number of virtual machines, negative values, such as -1, means unlimited
-	Volume  float64 `json:"volume"`  // number of volumes, negative values, such as -1, means unlimited
-	Storage float64 `json:"storage"` // storage size unit: GiB
-	Port    float64 `json:"port"`    // number of network ports, negative values, such as -1, means unlimited
+	VCpu    float64 `json:"vcpu"`
+	Ram     float64 `json:"ram"`
+	Vm      float64 `json:"vm"`
+	Volume  float64 `json:"volume"`
+	Storage float64 `json:"storage"`
+	Port    float64 `json:"port"`
 }
 
-// check whether all items in r1 are more than those in r2
 func (r1 ResSet) AllMoreThan(r2 ResSet) bool {
-	if r1.VCpu <= r2.VCpu && r1.VCpu >= 0 {
+	// Trả về true nếu mọi tài nguyên của r1 đều > r2 (bỏ qua r2<0)
+	if r2.VCpu >= 0 && !(r1.VCpu > r2.VCpu) {
 		return false
 	}
-	if r1.Ram <= r2.Ram && r1.Ram >= 0 {
+	if r2.Ram >= 0 && !(r1.Ram > r2.Ram) {
 		return false
 	}
-	if r1.Vm <= r2.Vm && r1.Vm >= 0 {
+	if r2.Vm >= 0 && !(r1.Vm > r2.Vm) {
 		return false
 	}
-	if r1.Volume <= r2.Volume && r1.Volume >= 0 {
+	if r2.Volume >= 0 && !(r1.Volume > r2.Volume) {
 		return false
 	}
-	if r1.Storage <= r2.Storage && r1.Storage >= 0 {
+	if r2.Storage >= 0 && !(r1.Storage > r2.Storage) {
 		return false
 	}
-	if r1.Port <= r2.Port && r1.Port >= 0 {
+	if r2.Port >= 0 && !(r1.Port > r2.Port) {
 		return false
 	}
 	return true
 }
 
-// the global variable to record all clouds
+// ===== Global Variables =====
 var Clouds map[string]Iaas = make(map[string]Iaas)
 var iaasConfig *viper.Viper
 
-// read config from iaas.json
+// ===== Configuration =====
 func readIaasConfig() {
 	iaasConfig = viper.New()
 	iaasConfig.SetConfigFile("conf/iaas.json")
 	iaasConfig.SetConfigType("json")
 	if err := iaasConfig.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("fatal error perse iaas.json: %w", err))
+		panic(fmt.Errorf("fatal error parse iaas.json: %w", err))
 	}
 }
 
-// InitClouds init the slice Clouds
+// ===== Init Clouds =====
 func InitClouds() {
 	readIaasConfig()
 	var iaasParas []map[string]interface{}
 	if err := iaasConfig.UnmarshalKey("iaas", &iaasParas); err != nil {
 		panic(fmt.Errorf("UnmarshalKey \"iaas\" of iaas.json error: %w", err))
 	}
-	// use the configuration parameters to build the elements in the slice Clouds
+
 	for i := 0; i < len(iaasParas); i++ {
 		switch iaasParas[i]["type"].(string) {
 		case OpenstackIaas:
@@ -133,111 +158,220 @@ func InitClouds() {
 		case ProxmoxIaas:
 			pCloud := InitProxmox(iaasParas[i])
 			Clouds[pCloud.Name] = pCloud
+		case LocalIaas: // ✅ local VM
+			lc := InitLocal(iaasParas[i])
+			Clouds[lc.Name] = lc
 		default:
-			beego.Info(fmt.Sprintf("Multi-cloud manager does not support cloud type [%s] of cloud [%s]", iaasParas[i]["type"].(string), iaasParas[i]["name"].(string)))
+			beego.Info(fmt.Sprintf("Multi-cloud manager does not support cloud type [%s] of cloud [%s]",
+				iaasParas[i]["type"].(string),
+				iaasParas[i]["name"].(string)))
 		}
 	}
+
 	beego.Info(fmt.Sprintf("All %d clouds are initialized.", len(Clouds)))
 }
 
-// after a VM is created, we should wait until the SSH is enabled, then we can to other things.
+// ===== SSH Waiters =====
+
 func WaitForSshPem(user string, pemFilePath string, sshIP string, sshPort int, secs int) error {
 	return gophercloud.WaitFor(secs, func() (bool, error) {
 		sshClient, err := SshClientWithPem(pemFilePath, user, sshIP, sshPort)
 		if err != nil {
-			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, this time SshClientWithPem error: %s", sshIP, err.Error()))
-			return false, nil // cannot return error, otherwise, gophercloud.WaitFor will stop with error
+			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, SshClientWithPem error: %s", sshIP, err.Error()))
+			return false, nil
 		}
 		defer sshClient.Close()
 		output, err := SshOneCommand(sshClient, DiskInitCmd)
 		if err != nil {
-			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, this time SshOneCommand \"\n%s\n\" error: %s", sshIP, DiskInitCmd, err.Error()))
+			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, SshOneCommand error: %s", sshIP, err.Error()))
 			return false, nil
 		}
-		beego.Info(fmt.Sprintf("SSH of ip %s is enabled, output: %s", sshIP, output))
+		beego.Info(fmt.Sprintf("SSH %s enabled, output: %s", sshIP, output))
 		return true, nil
 	})
 }
 
-// after a VM is created, we should wait until the SSH is enabled, then we can to other things.
-// We should also extend the disk to use the increased space
 func WaitForSshPasswdAndInit(user string, passwd string, sshIP string, sshPort int, secs int) error {
 	return gophercloud.WaitFor(secs, func() (bool, error) {
 		sshClient, err := SshClientWithPasswd(user, passwd, sshIP, sshPort)
 		if err != nil {
-			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, this time SshClientWithPasswd error: %s", sshIP, err.Error()))
-			return false, nil // cannot return error, otherwise, gophercloud.WaitFor will stop with error
+			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, SshClientWithPasswd error: %s", sshIP, err.Error()))
+			return false, nil
 		}
 		defer sshClient.Close()
 		output, err := SshOneCommand(sshClient, DiskInitCmd)
 		if err != nil {
-			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, this time SshOneCommand \"\n%s\n\" error: %s", sshIP, DiskInitCmd, err.Error()))
+			beego.Info(fmt.Sprintf("Waiting for SSH ip %s, SshOneCommand error: %s", sshIP, err.Error()))
 			return false, nil
 		}
-		beego.Info(fmt.Sprintf("SSH of ip %s is enabled, output: %s", sshIP, output))
+		beego.Info(fmt.Sprintf("SSH %s enabled, output: %s", sshIP, output))
 		return true, nil
 	})
 }
 
+// ===== Helpers =====
+
+// getImagePathForCloud: ưu tiên lấy từ vm.OsVariant (nếu là đường dẫn file),
+// sau đó tới iaas.json: imagePathMap.<cloudName>
+func getImagePathForCloud(v IaasVm) string {
+	// Nếu OsVariant có vẻ là đường dẫn image thì dùng luôn
+	if v.OsVariant != "" &&
+		(strings.HasPrefix(v.OsVariant, "/") ||
+			strings.HasSuffix(v.OsVariant, ".qcow2") ||
+			strings.HasSuffix(v.OsVariant, ".img")) {
+		return v.OsVariant
+	}
+	// Nếu không, thử lấy từ cấu hình
+	if iaasConfig != nil {
+		key := fmt.Sprintf("imagePathMap.%s", v.Cloud)
+		if iaasConfig.IsSet(key) {
+			return iaasConfig.GetString(key)
+		}
+	}
+	return ""
+}
+
+// needInstallMethodFallback: phát hiện lỗi virt-install yêu cầu chỉ định install method
+func needInstallMethodFallback(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "An install method must be specified") ||
+		strings.Contains(msg, "--location") ||
+		strings.Contains(msg, "--cdrom") ||
+		strings.Contains(msg, "--pxe") ||
+		strings.Contains(msg, "--import")
+}
+
+// ===== VM Management =====
+
 func CreateVms(vms []IaasVm) ([]IaasVm, error) {
-	// create the VMs concurrently
-	// We cannot use one goroutine to create one VM, because if we create more than one VM in proxmox, there will be the problem:
-	// "can't lock file '/var/lock/qemu-server/lock-107.conf' - got timeout"
-	// Therefore, we use one goroutine to create the VMs in one cloud.
 	vmGroups := GroupVmsByCloud(vms)
 
 	var errs []error
 	var createdVms []IaasVm
-	var errsMu sync.Mutex // the slice in golang is not safe for concurrent read/write
+	var errsMu sync.Mutex
 	var createdVmsMu sync.Mutex
 	var wg sync.WaitGroup
+
 	for _, vmGroup := range vmGroups {
 		wg.Add(1)
 		go func(vg []IaasVm) {
 			defer wg.Done()
-
-			// in every vm group (every cloud), we create the VMs serially
 			for _, v := range vg {
-				beego.Info(fmt.Sprintf("Start to create vm Name [%s] Cloud [%s], vcpu cores [%f], ram [%f MiB], storage [%f GiB].", v.Name, v.Cloud, v.VCpu, v.Ram, v.Storage))
+				beego.Info(fmt.Sprintf("Start create VM [%s] Cloud [%s]", v.Name, v.Cloud))
 				cloud, exist := Clouds[v.Cloud]
 				if !exist {
-					outErr := fmt.Errorf("Create vm %s error: cloud name [%s] not found.", v.Name, v.Cloud)
+					outErr := fmt.Errorf("Create vm %s error: cloud [%s] not found.", v.Name, v.Cloud)
 					beego.Error(outErr)
 					errsMu.Lock()
 					errs = append(errs, outErr)
 					errsMu.Unlock()
 					return
 				}
+
+				// --- NEW: honor InstallMethod when explicitly set ---
+				switch strings.ToLower(strings.TrimSpace(v.InstallMethod)) {
+				case "import":
+					imagePath := getImagePathForCloud(v)
+					if imagePath == "" {
+						beego.Error(fmt.Sprintf(
+							"InstallMethod=import but missing imagePath for VM [%s] on cloud [%s]. "+
+								"Set vm.OsVariant to absolute image path or configure iaas.json:imagePathMap.%s",
+							v.Name, v.Cloud, v.Cloud))
+						// fallthrough to default behavior (try CreateVM then fallback)
+					} else {
+						if imp, ok := cloud.(importer); ok {
+							beego.Info(fmt.Sprintf("Create VM [%s] via explicit import with image [%s]", v.Name, imagePath))
+							if createdVM2, err2 := imp.CreateVMFromImage(v.Name, imagePath, int(v.VCpu), int(v.Ram), int(v.Storage)); err2 == nil {
+								beego.Info(fmt.Sprintf("Created vm by explicit import:\n%+v\n", createdVM2))
+								createdVmsMu.Lock()
+								createdVms = append(createdVms, *createdVM2)
+								createdVmsMu.Unlock()
+								continue // done
+							} else {
+								beego.Error(fmt.Sprintf("Explicit import for %s failed: %s", v.Name, err2))
+								errsMu.Lock()
+								errs = append(errs, err2)
+								errsMu.Unlock()
+								continue // don't try default path to avoid double-creating
+							}
+						} else {
+							beego.Error(fmt.Sprintf("Cloud [%s] does not support CreateVMFromImage (import).", v.Cloud))
+							// fallthrough to default behavior
+						}
+					}
+				case "":
+					// no preference → use default path below
+				case "location", "cdrom", "pxe", "boot":
+					// Not wired into Iaas interface yet; proceed with default CreateVM and rely on driver or fallback.
+					beego.Info(fmt.Sprintf("InstallMethod=%s requested for [%s], proceeding with driver default and fallback.",
+						v.InstallMethod, v.Name))
+				default:
+					beego.Info(fmt.Sprintf("Unknown installMethod=%q for [%s], using driver default.", v.InstallMethod, v.Name))
+				}
+				// --- end NEW ---
+
+				// 1) Thử tạo theo đường chuẩn của cloud driver
 				createdVM, err := cloud.CreateVM(v.Name, int(v.VCpu), int(v.Ram), int(v.Storage))
-				if err != nil {
-					outErr := fmt.Errorf("Create vm %s error %w.", v.Name, err)
-					beego.Error(outErr)
-					errsMu.Lock()
-					errs = append(errs, outErr)
-					errsMu.Unlock()
-				} else {
-					beego.Info(fmt.Sprintf("Successful! Create vm:\n%+v\n", createdVM))
+				if err == nil {
+					beego.Info(fmt.Sprintf("Created vm:\n%+v\n", createdVM))
 					createdVmsMu.Lock()
 					createdVms = append(createdVms, *createdVM)
 					createdVmsMu.Unlock()
+					continue
 				}
-			}
 
+				// 2) Nếu lỗi do thiếu install method (virt-install), thử fallback import từ image có sẵn
+				if needInstallMethodFallback(err) {
+					imagePath := getImagePathForCloud(v)
+					if imagePath == "" {
+						beego.Error(fmt.Sprintf(
+							"Missing imagePath for fallback import of VM [%s] on cloud [%s]. "+
+								"Set vm.OsVariant to absolute image path or configure iaas.json:imagePathMap.%s",
+							v.Name, v.Cloud, v.Cloud))
+					} else {
+						if imp, ok := cloud.(importer); ok {
+							beego.Info(fmt.Sprintf("Retry create VM [%s] on cloud [%s] with existing image [%s] ...",
+								v.Name, v.Cloud, imagePath))
+							createdVM2, err2 := imp.CreateVMFromImage(v.Name, imagePath, int(v.VCpu), int(v.Ram), int(v.Storage))
+							if err2 == nil {
+								beego.Info(fmt.Sprintf("Created vm by import:\n%+v\n", createdVM2))
+								createdVmsMu.Lock()
+								createdVms = append(createdVms, *createdVM2)
+								createdVmsMu.Unlock()
+								continue
+							}
+							beego.Error(fmt.Sprintf("Create vm %s fallback by image [%s] error: %s", v.Name, imagePath, err2))
+							errsMu.Lock()
+							errs = append(errs, err2)
+							errsMu.Unlock()
+							// tiếp tục xuống ghi nhận lỗi gốc
+						} else {
+							beego.Error(fmt.Sprintf("Cloud [%s] does not support CreateVMFromImage fallback.", v.Cloud))
+						}
+					}
+				}
+
+				// 3) Ghi nhận lỗi nguyên bản nếu không fallback được hoặc fallback fail
+				beego.Error(fmt.Sprintf("Create vm %s error: %s", v.Name, err))
+				errsMu.Lock()
+				errs = append(errs, err)
+				errsMu.Unlock()
+			}
 		}(vmGroup)
 	}
 	wg.Wait()
 
-	if len(errs) != 0 {
-		sumErr := HandleErrSlice(errs)
-		outErr := fmt.Errorf("CreateVms, Error: %w", sumErr)
+	if len(errs) > 0 {
+		outErr := fmt.Errorf("CreateVms failed: %v", errs)
 		beego.Error(outErr)
 		return createdVms, outErr
 	}
-
 	return createdVms, nil
 }
 
-// Check whether a vm name exists in a group of vms
 func FindVm(vmName string, vms []IaasVm) (*IaasVm, bool) {
 	for _, vm := range vms {
 		if vmName == vm.Name {
@@ -247,33 +381,24 @@ func FindVm(vmName string, vms []IaasVm) (*IaasVm, bool) {
 	return nil, false
 }
 
-// group vms, putting the VMs on the same cloud in the same group.
 func GroupVmsByCloud(vms []IaasVm) map[string][]IaasVm {
-	var outVmGroups map[string][]IaasVm = make(map[string][]IaasVm)
-
+	out := make(map[string][]IaasVm)
 	for _, vm := range vms {
-		outVmGroups[vm.Cloud] = append(outVmGroups[vm.Cloud], vm)
+		out[vm.Cloud] = append(out[vm.Cloud], vm)
 	}
-
-	return outVmGroups
+	return out
 }
 
-// delete a batch of Virtual Machines concurrently
 func DeleteBatchVms(vms []IaasVm) []error {
 	var errs []error
-	var errsMu sync.Mutex // the slice in golang is not safe for concurrent read/write
-
-	// delete vms in parallel
+	var errsMu sync.Mutex
 	var wg sync.WaitGroup
-
 	for _, vm := range vms {
 		wg.Add(1)
 		go func(v IaasVm) {
 			defer wg.Done()
-
-			err := Clouds[v.Cloud].DeleteVM(v.ID)
-			if err != nil {
-				outErr := fmt.Errorf("Delete vm [%s (ID: %s)] on cloud [%s], error %w.", v.Name, v.ID, v.Cloud, err)
+			if err := Clouds[v.Cloud].DeleteVM(v.ID); err != nil {
+				outErr := fmt.Errorf("Delete vm [%s:%s] on [%s] failed: %v", v.Name, v.ID, v.Cloud, err)
 				beego.Error(outErr)
 				errsMu.Lock()
 				errs = append(errs, outErr)
@@ -282,6 +407,5 @@ func DeleteBatchVms(vms []IaasVm) []error {
 		}(vm)
 	}
 	wg.Wait()
-
 	return errs
 }

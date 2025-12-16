@@ -34,7 +34,7 @@ func main() {
 	// ===============================
 	// BỎ QUA INIT CLOUD / OPENSTACK
 	// ===============================
-	// models.InitSomeThing()
+	models.InitSomeThing()
 
 	numCpuToUse := runtime.NumCPU()
 	beego.Info(fmt.Sprintf("Using %d CPU cores for goroutines.", numCpuToUse))

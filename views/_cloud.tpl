@@ -218,7 +218,7 @@
                         <th rowspan="2">Name</th>
                         <th rowspan="2">Type</th>
                         <th rowspan="2">Web URL</th>
-                        <!-- NEW: cột nhiệt độ -->
+                        <!-- NEW: Nhiệt độ -->
                         <th rowspan="2">Temperature (°C)</th>
                         <th colspan="6">Resources (used/total)</th>
                     </tr>
@@ -238,7 +238,7 @@
                         <td><span class="badge bg-primary">{{$cloud.Type}}</span></td>
                         <td><a href="{{$cloud.WebUrl}}" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i> {{$cloud.WebUrl}}</a></td>
 
-                        <!-- NEW: cell nhiệt độ -->
+                        <!-- NEW: Cột nhiệt độ -->
                         <td>
                             {{if $cloud.HasTemperature}}
                                 <i class="fas fa-temperature-half"></i>

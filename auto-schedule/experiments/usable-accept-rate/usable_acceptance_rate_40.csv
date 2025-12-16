@@ -1,7 +1,7 @@
 Algorithm Name,Maximum Scheduling Time (s),Scheduling Request Count,Usable Solution Count,Total App Count,Total Accepted App Count,Total App Priority,Total Accepted App Priority,Solution Usable Rate,App Acceptance Rate,App Priority Weighted Acceptance Rate,Priority-1 App Acceptance Rate,Priority-2 App Acceptance Rate,Priority-3 App Acceptance Rate,Priority-4 App Acceptance Rate,Priority-5 App Acceptance Rate,Priority-6 App Acceptance Rate,Priority-7 App Acceptance Rate,Priority-8 App Acceptance Rate,Priority-9 App Acceptance Rate,Priority-10 App Acceptance Rate
-CompRand,0.601508386,20,0,1200,0,6624,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-BERand,0.634186141,20,20,1200,0,6624,0,1,0,0,0,0,0,0,0,0,0,0,0,0
-Amaga,3.646688186,20,20,1200,0,6624,0,1,0,0,0,0,0,0,0,0,0,0,0,0
-Ampga,3.580688763,20,20,1200,0,6624,0,1,0,0,0,0,0,0,0,0,0,0,0,0
-Diktyoga,3.733795409,20,20,1200,0,6624,0,1,0,0,0,0,0,0,0,0,0,0,0,0
-Mcssga,3.755111768,20,20,1200,0,6624,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+CompRand,0.628663269,20,0,800,0,4289,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+BERand,0.600992334,20,20,800,0,4289,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Amaga,2.214375208,20,20,800,0,4289,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Ampga,2.33172462,20,20,800,0,4289,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Diktyoga,2.382422559,20,20,800,0,4289,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Mcssga,2.392362709,20,20,800,0,4289,0,1,0,0,0,0,0,0,0,0,0,0,0,0

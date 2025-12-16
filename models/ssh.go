@@ -3,30 +3,39 @@ package models
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
+	"strings"
 
 	"github.com/astaxie/beego"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/agent"
 )
 
 func SshOneCommand(client *ssh.Client, command string) ([]byte, error) {
-	beego.Info(fmt.Sprintf("Execute command on IP [%s]", client.Conn.RemoteAddr()))
+	beego.Info(fmt.Sprintf("Execute command on [%s]: %s", client.Conn.RemoteAddr(), command))
+
 	session, err := client.NewSession()
 	if err != nil {
-		beego.Error(fmt.Sprintf("Create ssh session fail: error: %s", err.Error()))
-		return []byte{}, fmt.Errorf("Create ssh session for [%s] fail: error: %s", command, err.Error())
+		outErr := fmt.Errorf("create ssh session fail: %w", err)
+		beego.Error(outErr)
+		return nil, outErr
 	}
 	defer session.Close()
 
-	output, err := session.Output(command)
+	// CombinedOutput lấy cả stdout và stderr
+	output, err := session.CombinedOutput(command)
+
 	if err != nil {
-		beego.Error(fmt.Sprintf("ssh execute [%s]: error: %s", command, err.Error()))
-		beego.Error(fmt.Sprintf("ssh execute [%s]: output: %s", command, string(output)))
-	} else {
-		beego.Info(fmt.Sprintf("ssh execute [%s]: output: %s", command, string(output)))
+		beego.Error(fmt.Sprintf("ssh execute failed [%s]: %v", command, err))
+		beego.Error(fmt.Sprintf("ssh output:\n%s", string(output)))
+		return output, fmt.Errorf("remote command [%s] failed: %w", command, err)
 	}
-	return output, err
+
+	// Khi thành công
+	beego.Info(fmt.Sprintf("ssh execute success [%s]:\n%s", command, string(output)))
+	return output, nil
 }
 
 // create an ssh client with password
@@ -47,30 +56,42 @@ func SshClientWithPasswd(user, passwd, ip string, port int) (*ssh.Client, error)
 }
 
 // create an ssh client with pem private key identity file
-func SshClientWithPem(pemFilePath string, user string, ip string, port int) (*ssh.Client, error) {
-	pemByte, err := ioutil.ReadFile(pemFilePath)
+func SshClientWithPem(pemFilePath, user, ip string, port int) (*ssh.Client, error) {
+	pemByte, err := ioutil.ReadFile(strings.TrimSpace(pemFilePath))
 	if err != nil {
-		outErr := fmt.Errorf("read ssh private key file %s error: %w", pemFilePath, err)
-		beego.Error(outErr)
-		return nil, outErr
+		return nil, fmt.Errorf("read ssh private key file %s error: %w", pemFilePath, err)
 	}
+
 	signer, err := ssh.ParsePrivateKey(pemByte)
 	if err != nil {
-		outErr := fmt.Errorf("ssh.ParsePrivateKey error: %w", err)
-		beego.Error(outErr)
-		return nil, outErr
+		return nil, fmt.Errorf("ssh.ParsePrivateKey error: %w", err)
 	}
+
+	fp := ssh.FingerprintSHA256(signer.PublicKey())
+	beego.Info(fmt.Sprintf("[SSH] connecting %s@%s:%d with key fp=%s (from %s)",
+		user, ip, port, fp, pemFilePath))
+
+	// Hỗ trợ ssh-agent + (tùy chọn) password fallback
+	auth := []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	if sock := os.Getenv("SSH_AUTH_SOCK"); sock != "" {
+		if conn, err := net.Dial("unix", sock); err == nil {
+			agentClient := agent.NewClient(conn)
+			auth = append(auth, ssh.PublicKeysCallback(agentClient.Signers))
+		}
+	}
+	if pw := beego.AppConfig.String("k8sVmSshPassword"); pw != "" {
+		auth = append(auth, ssh.Password(pw))
+	}
+
 	config := &ssh.ClientConfig{
 		Timeout:         SshTimeout,
 		User:            user,
-		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
+		Auth:            auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", ip, port), config)
 	if err != nil {
-		outErr := fmt.Errorf("ssh.Dial error: %w", err)
-		beego.Error(outErr)
-		return nil, outErr
+		return nil, fmt.Errorf("ssh.Dial error: %w", err)
 	}
 	return client, nil
 }

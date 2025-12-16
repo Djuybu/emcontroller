@@ -1,10 +1,16 @@
 package models
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
+	"os/user"
+	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/astaxie/beego"
 	v1 "k8s.io/api/apps/v1"
@@ -13,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/retry"
 )
@@ -22,23 +29,41 @@ var kubernetesClient *kubernetes.Clientset
 func InitKubernetesClient() {
 	// default kubeconfig path
 	if KubeConfigPath == "" {
-		KubeConfigPath = defaultKubeConfigPath
+		KubeConfigPath = resolveKubeConfigPath()
 	}
 	kubernetesClient = initKubernetesClient()
 	beego.Info("Kubernetes client initialized.")
 }
 
 func initKubernetesClient() *kubernetes.Clientset {
-	// Use the configuration of "kubeconfig" to access kubernetes
-	config, err := clientcmd.BuildConfigFromFlags("", KubeConfigPath)
-	if err != nil {
-		beego.Error(fmt.Sprintf("Build kubernetes config error: %s", err.Error()))
-		panic(err)
+	kubeConfigPath := os.Getenv("KUBECONFIG")
+
+	if kubeConfigPath == "" {
+		if home := os.Getenv("HOME"); home != "" {
+			kubeConfigPath = filepath.Join(home, ".kube", "config")
+		} else if u, err := user.Current(); err == nil && u.HomeDir != "" {
+			kubeConfigPath = filepath.Join(u.HomeDir, ".kube", "config")
+		} else {
+			kubeConfigPath = "/home/djuybu/.kube/config"
+		}
 	}
 
-	// We weaken the throttling of the client, because in Multi-Cloud Manager, all requests to the Kubernetes use this only client. If we use the default throttling, the response will be very slow during the network performance measurement.
-	var clientQPS float32 = float32(len(Clouds) * len(Clouds) * 2)
+	beego.Info(fmt.Sprintf("Trying kubeconfig at: %s", kubeConfigPath))
 
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	if err != nil {
+		beego.Warn(fmt.Sprintf("Failed to load kubeconfig from file (%s): %s", kubeConfigPath, err.Error()))
+		config, err = rest.InClusterConfig()
+		if err != nil {
+			beego.Error(fmt.Sprintf("Cannot build in-cluster config: %s", err.Error()))
+			panic(fmt.Errorf("unable to load any Kubernetes config: %w", err))
+		}
+		beego.Info("Using in-cluster Kubernetes configuration.")
+	} else {
+		beego.Info("Using external kubeconfig file.")
+	}
+
+	var clientQPS float32 = float32(len(Clouds) * len(Clouds) * 2)
 	config.QPS = clientQPS
 	config.Burst = int(clientQPS) * 2
 
@@ -49,7 +74,21 @@ func initKubernetesClient() *kubernetes.Clientset {
 		beego.Error(fmt.Sprintf("Create kubernetes client error: %s", err.Error()))
 		panic(err)
 	}
+
 	return client
+}
+
+func resolveKubeConfigPath() string {
+	if v := os.Getenv("KUBECONFIG"); v != "" {
+		return v
+	}
+	if u, err := user.Current(); err == nil && u.HomeDir != "" {
+		return filepath.Join(u.HomeDir, ".kube", "config")
+	}
+	if h := os.Getenv("HOME"); h != "" {
+		return filepath.Join(h, ".kube", "config")
+	}
+	return "/root/.kube/config"
 }
 
 func ListDeployment(namespace string) ([]v1.Deployment, error) {
@@ -333,30 +372,60 @@ func ExtractNodeStatus(node apiv1.Node) string {
 
 // SSH to Kubernetes Master node to generate a kubeadm join command. The command will expire by default after 24 hours
 // A Kubernetes cluster can have more than one tokens at a time.
+func isLocalhost(ip string) bool {
+	switch strings.TrimSpace(strings.ToLower(ip)) {
+	case "127.0.0.1", "::1", "localhost":
+		return true
+	default:
+		return false
+	}
+}
+
+func runLocal(cmd string) ([]byte, error) {
+	c := exec.Command("bash", "-lc", cmd)
+	var out bytes.Buffer
+	c.Stdout = &out
+	c.Stderr = &out
+	err := c.Run()
+	return out.Bytes(), err
+}
+
 func GetJoinCmd() (string, error) {
-	K8sMasterIP := beego.AppConfig.String("k8sMasterIP")
-	sshPrivateKey := beego.AppConfig.String("k8sVmSshPrivateKey")
+	masterIP := beego.AppConfig.String("k8sMasterIP")
+	sshKey := beego.AppConfig.String("k8sVmSshPrivateKey")
+	sshUser := beego.AppConfig.DefaultString("k8sVmSshUser", "ubuntu")
 	sshPort := SshPort
-	sshUser := SshRootUser
 
-	sshClient, err := SshClientWithPem(sshPrivateKey, sshUser, K8sMasterIP, sshPort)
-	if err != nil {
-		outErr := fmt.Errorf("Create ssh client with SSH key fail: error: %w", err)
-		beego.Error(outErr)
-		return "", outErr
+	// Luôn dùng sudo -n để không bị prompt password
+	cmd := "sudo -n kubeadm token create --print-join-command"
+
+	var out []byte
+	var err error
+
+	if isLocalhost(masterIP) {
+		beego.Info("[GetJoinCmd] Running locally on localhost")
+		out, err = runLocal(cmd)
+	} else {
+		beego.Info(fmt.Sprintf("[GetJoinCmd] SSH to %s:%d as %s", masterIP, sshPort, sshUser))
+		client, derr := SshClientWithPem(sshKey, sshUser, masterIP, sshPort)
+		if derr != nil {
+			return "", fmt.Errorf("Create ssh client fail: %w", derr)
+		}
+		defer client.Close()
+		out, err = SshOneCommand(client, cmd)
 	}
-	defer sshClient.Close()
 
-	joinCmdBytes, err := SshOneCommand(sshClient, "kubeadm token create --print-join-command")
 	if err != nil {
-		outErr := fmt.Errorf("ssh error: %w", err)
-		beego.Error(outErr)
-		return "", outErr
+		return "", fmt.Errorf("GetJoinCmd exec error: %w; output: %s", err, string(out))
 	}
 
-	joinCmd := strings.TrimRight(string(joinCmdBytes), "\r\n ")
+	join := strings.TrimSpace(string(out))
+	if !strings.HasPrefix(join, "kubeadm join ") {
+		return "", fmt.Errorf("unexpected join command output: %q", join)
+	}
 
-	return joinCmd, nil
+	beego.Info("[GetJoinCmd] got join command at ", time.Now().Format(time.RFC3339))
+	return join, nil
 }
 
 // kubectl drain <nodeName> --ignore-daemonsets
@@ -462,23 +531,24 @@ func AddNode(vm IaasVm, joinCmd string) error {
 		return outErr
 	}
 
-	// Prevent users from adding some important VM into Kubernetes cluster.
+	// Prevent users from adding important VMs
 	k8sMasterIP := beego.AppConfig.String("k8sMasterIP")
 	dockerEngineIP := beego.AppConfig.String("dockerEngineIP")
 	dockerRegistryIP := beego.AppConfig.String("dockerRegistryIP")
+
 	if vm.IPs[0] == k8sMasterIP || vm.IPs[0] == dockerEngineIP || vm.IPs[0] == dockerRegistryIP {
 		outErr := fmt.Errorf("the input vm [%s] is an important VM, so we refuse this risky request", vm.Name)
 		beego.Error(outErr)
 		return outErr
 	}
 
-	// get the name and IP of the input VM
+	// get VM info
 	name, ip := vm.Name, vm.IPs[0]
-
 	sshPrivateKey := beego.AppConfig.String("k8sVmSshPrivateKey")
 	sshPort := SshPort
-	sshUser := SshRootUser
+	sshUser := beego.AppConfig.DefaultString("k8sVmSshUser", "ubuntu")
 
+	// connect via SSH
 	sshClient, err := SshClientWithPem(sshPrivateKey, sshUser, ip, sshPort)
 	if err != nil {
 		outErr := fmt.Errorf("Create ssh client with SSH key fail: error: %w", err)
@@ -487,33 +557,27 @@ func AddNode(vm IaasVm, joinCmd string) error {
 	}
 	defer sshClient.Close()
 
-	// replace the placeholder in containerd configuration file
-	if _, err := SshOneCommand(sshClient, fmt.Sprintf("sed -i 's/<IP>/%s/g' /etc/containerd/config.toml", k8sMasterIP)); err != nil {
-		outErr := fmt.Errorf("ssh error: %w", err)
-		beego.Error(outErr)
-		return outErr
-	}
-	// restart containerd
-	if _, err := SshOneCommand(sshClient, "systemctl restart containerd"); err != nil {
-		outErr := fmt.Errorf("ssh error: %w", err)
-		beego.Error(outErr)
-		return outErr
+	// === FIX CONTAINERD CONFIG ===
+
+	cmds := []string{
+		"sudo mkdir -p /etc/containerd",
+		"sudo test -f /etc/containerd/config.toml || sudo containerd config default | sudo tee /etc/containerd/config.toml",
+		fmt.Sprintf("sudo sed -i 's/<IP>/%s/g' /etc/containerd/config.toml", k8sMasterIP),
+		"sudo systemctl restart containerd",
+		"sudo systemctl enable kubelet",
+		fmt.Sprintf("sudo %s --node-name=%s", joinCmd, name),
 	}
 
-	// set that kubelet start when VM start
-	if _, err := SshOneCommand(sshClient, "systemctl enable kubelet"); err != nil {
-		outErr := fmt.Errorf("ssh error: %w", err)
-		beego.Error(outErr)
-		return outErr
+	for _, cmd := range cmds {
+		out, err := SshOneCommand(sshClient, cmd)
+		if err != nil {
+			outErr := fmt.Errorf("ssh error at [%s]: %v, output: %s", cmd, err, string(out))
+			beego.Error(outErr)
+			return outErr
+		}
 	}
 
-	// execute kubeadm join command to add this VM into Kubernetes cluster
-	if _, err := SshOneCommand(sshClient, fmt.Sprintf("%s --node-name=%s", joinCmd, name)); err != nil {
-		outErr := fmt.Errorf("ssh error: %w", err)
-		beego.Error(outErr)
-		return outErr
-	}
-
+	// Wait for Kubernetes node to join
 	if err := WaitForNodeJoin(WaitForTimeOut, 5, name); err != nil {
 		outErr := fmt.Errorf("Wait for node %s join, error: %w", name, err)
 		beego.Error(outErr)

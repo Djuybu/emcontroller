@@ -137,8 +137,8 @@ const (
 	minNodePort int = 30000
 	maxNodePort int = 32768
 
-	mcmEndpoint string = "172.27.15.31:20000"
-	//mcmEndpoint string = "localhost:20000"
+	// mcmEndpoint string = "172.27.15.31:20000"
+	mcmEndpoint string = "localhost:20000"
 
 	defaultWorkload int    = 5000000 // input value of cumulative sum
 	exptImage       string = "172.27.15.31:5000/mcexp:20230905"
